@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generic — Skill Workflow Guide</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:system-ui,-apple-system,sans-serif; background:#0f172a; color:#e2e8f0; padding:40px; line-height:1.6; }
+  h1 { color:#38bdf8; font-size:1.8rem; margin-bottom:4px; }
+  .subtitle { color:#94a3b8; margin-bottom:32px; }
+  h2 { color:#818cf8; font-size:1.2rem; margin:24px 0 8px; }
+  .flow { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; margin:16px 0 32px; }
+  .card { background:#1e293b; border-radius:12px; padding:20px; border-left:4px solid #334155; }
+  .card:nth-child(1) { border-left-color:#38bdf8; }
+  .card:nth-child(2) { border-left-color:#fbbf24; }
+  .card:nth-child(3) { border-left-color:#f472b6; }
+  .card:nth-child(4) { border-left-color:#34d399; }
+  .card h3 { font-size:1rem; margin-bottom:4px; }
+  .card .input { color:#94a3b8; font-size:0.8rem; margin-bottom:8px; }
+  .card .output { color:#6ee7b7; font-size:0.8rem; margin-bottom:8px; }
+  .card .prompt { background:#0f172a; padding:8px 12px; border-radius:6px; font-family:monospace; font-size:0.85rem; color:#a5f3fc; margin:8px 0; }
+  table { width:100%; border-collapse:collapse; margin:12px 0; }
+  th, td { text-align:left; padding:8px 12px; border-bottom:1px solid #334155; }
+  th { color:#94a3b8; font-size:0.8rem; text-transform:uppercase; }
+  td { font-size:0.9rem; }
+  .code { font-family:monospace; color:#a5f3fc; }
+  .arrow { color:#64748b; margin:0 8px; }
+  hr { border:none; border-top:1px solid #334155; margin:24px 0; }
+  ol { margin-left:20px; }
+  ol li { margin-bottom:6px; }
+</style>
+</head>
+<body>
+
+<h1>⚙ Generic — 4-Skill Seamless Workflow</h1>
+<p class="subtitle">แต่ละ skill รับ parameter (file path) จาก user → ต่อกันแบบไร้รอยต่อ สามารถใช้กับ project ใดๆ ได้</p>
+
+<h2>📋 Pipeline ที่ถูกต้อง</h2>
+<div style="background:#1e293b; border-radius:12px; padding:20px; margin:16px 0 32px;">
+  <div style="display:flex; align-items:center; flex-wrap:wrap; gap:8px;">
+    <span style="color:#38bdf8; font-weight:600;">01-create-checklist</span>
+    <span class="arrow">➜</span>
+    <span style="color:#fbbf24; font-weight:600;">02-test-checklist</span>
+    <span class="arrow">➜</span>
+    <span style="color:#f472b6; font-weight:600;">03-fix-from-report</span>
+    <span class="arrow">➜</span>
+    <span style="color:#34d399; font-weight:600;">04-regression-test</span>
+  </div>
+  <div style="display:flex; align-items:center; flex-wrap:wrap; gap:8px; margin-top:8px; font-size:0.85rem; color:#94a3b8;">
+    <span class="code">target file</span><span class="arrow">➜</span>
+    <span class="code">checklist</span><span class="arrow">➜</span>
+    <span class="code">test-report</span><span class="arrow">➜</span>
+    <span class="code">fix-report</span><span class="arrow">➜</span>
+    <span class="code">regression-report</span>
+  </div>
+</div>
+
+<h2>📌 วิธีเรียกใช้ (chain ที่ถูกต้อง)</h2>
+<ol>
+  <li><strong>สร้าง checklist:</strong> <span class="code">"ใช้ skill 01-create-checklist กับ file menu source-dir=src/ output-dir=plan/test-flow/"</span> → <span class="code" style="color:#6ee7b7;">plan/test-flow/{date}-menu-checklist.md</span></li>
+  <li><strong>ทดสอบ:</strong> <span class="code">"ใช้ skill 02-test-checklist กับ file plan/test-flow/{date}-menu-checklist.md output-dir=reports/"</span> → <span class="code" style="color:#6ee7b7;">reports/test-report-menu.md</span></li>
+  <li><strong>แก้ไข:</strong> <span class="code">"ใช้ skill 03-fix-from-report กับ file reports/test-report-menu.md build-cmd='npm run build' project-dir=./ output-dir=reports/"</span> → <span class="code" style="color:#6ee7b7;">reports/fix-report-menu.md</span></li>
+  <li><strong>ตรวจสอบซ้ำ:</strong> <span class="code">"ใช้ skill 04-regression-test กับ file plan/test-flow/{date}-menu-checklist.md, reports/test-report-menu.md, reports/fix-report-menu.md output-dir=reports/"</span> → <span class="code" style="color:#6ee7b7;">reports/regression-report-menu.md</span></li>
+</ol>
+
+<div class="flow">
+  <div class="card">
+    <h3>📝 01-create-checklist</h3>
+    <div class="input">input: target, source-dir (opt), output-dir (opt), patterns (opt)</div>
+    <div class="output">output: {{output-dir}}/{date}-{target}-checklist.md</div>
+    <div class="prompt">ใช้ skill 01-create-checklist กับ file menu source-dir=src/</div>
+  </div>
+  <div class="card">
+    <h3>🧪 02-test-checklist</h3>
+    <div class="input">input: checklist, output-dir (opt)</div>
+    <div class="output">output: {{output-dir}}/test-report-{target}.md</div>
+    <div class="prompt">ใช้ skill 02-test-checklist กับ file checklist-menu.md</div>
+  </div>
+  <div class="card">
+    <h3>🛠️ 03-fix-from-report</h3>
+    <div class="input">input: report, build-cmd (opt), project-dir (opt), output-dir (opt)</div>
+    <div class="output">output: {{output-dir}}/fix-report-{target}.md</div>
+    <div class="prompt">ใช้ skill 03-fix-from-report กับ file test-report-menu.md</div>
+  </div>
+  <div class="card">
+    <h3>✅ 04-regression-test</h3>
+    <div class="input">input: checklist, original-report, fix-report, output-dir (opt)</div>
+    <div class="output">output: {{output-dir}}/regression-report-{target}.md</div>
+    <div class="prompt">ใช้ skill 04-regression-test กับ file checklist-menu.md, test-report-menu.md, fix-report-menu.md</div>
+  </div>
+</div>
+
+<h2>📂 โครงสร้าง skill</h2>
+<table>
+  <tr><th>Skill</th><th>SKILL.md frontmatter</th></tr>
+  <tr>
+    <td><span class="code">01-create-checklist</span></td>
+    <td><span class="code">inputs: [target, source-dir, output-dir, patterns]</span></td>
+  </tr>
+  <tr>
+    <td><span class="code">02-test-checklist</span></td>
+    <td><span class="code">inputs: [checklist, output-dir]</span></td>
+  </tr>
+  <tr>
+    <td><span class="code">03-fix-from-report</span></td>
+    <td><span class="code">inputs: [report, build-cmd, project-dir, output-dir]</span></td>
+  </tr>
+  <tr>
+    <td><span class="code">04-regression-test</span></td>
+    <td><span class="code">inputs: [checklist, original-report, fix-report, output-dir]</span></td>
+  </tr>
+</table>
+
+<p style="color:#64748b;font-size:0.85rem;margin-top:32px;">Generic Skill Workflow Guide v3.0 (Reusable) | 03/07/2026</p>
+
+</body>
+</html>
